@@ -1,0 +1,121 @@
+ingress:
+  enabled: true
+  hosts:
+    - host: app.vikunja.34.31.57.223.nip.io
+      paths:
+        - path: /
+          pathType: Prefix
+  annotations:
+    kubernetes.io/ingress.class: gce
+
+service:
+  enabled: true
+  type: LoadBalancer
+  port: 3456
+  annotations: {}
+  labels: {}
+
+# Environment variables at root level (not under controller)
+env:
+  - name: TZ
+    value: UTC
+  - name: VIKUNJA_DATABASE_TYPE
+    value: postgres
+  - name: VIKUNJA_DATABASE_HOST
+    value: mypg-postgresql.keycloak.svc.cluster.local
+  - name: VIKUNJA_DATABASE_PORT
+    value: "5432"
+  - name: VIKUNJA_DATABASE_USER
+    value: postgres
+  - name: VIKUNJA_DATABASE_PASSWORD
+    value: postgres
+  - name: VIKUNJA_DATABASE_DATABASE
+    value: postgres
+
+# Keep your other settings
+vikunja:
+  image:
+    repository: vikunja/vikunja
+    tag: ''
+    pullPolicy: IfNotPresent
+  nameOverride: ''
+  fullnameOverride: ''
+  controller:
+    replicas: 3
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 3456
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    Probe:
+      httpGet:
+        path: /health
+        port: 3456
+      initialDelaySeconds: 10
+      periodSeconds: 10
+    strategy:
+      type: RollingUpdreadinessate
+    resources:
+      requests:
+        cpu: 100m
+        memory: 200Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  main:
+    type: ClusterIP
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    timeout: 10s
+    annotations: {}
+    labels: {}
+  ingressRoute:
+    create: false
+    entryPoints: []
+    rule: ''
+    middlewares: []
+    tlsSecretName: ''
+    annotations: {}
+    labels: {}
+  certificate:
+    create: false
+    dnsNames: []
+    secretName: ''
+    issuerRef:
+      kind: ClusterIssuer
+      name: ''
+    annotations: {}
+    labels: {}
+  ports:
+    http:
+      enabled: true
+      port: 3456
+      nodePort: null
+      protocol: TCP
+  persistentVolumeClaim:
+    create: true
+    mountPath: /app/vikunja/files
+    accessMode: ReadWriteOnce
+    volumeMode: Filesystem
+    size: 1Gi
+    storageClassName: ''
+    existingPersistentVolumeClaim: ''
+    annotations: {}
+    labels: {}
+  serviceAccount:
+    name: ''
+  securityContext: {}
+  resources: {}
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - vikunja
+          topologyKey: kubernetes.io/hostname
+  tolerations: []
