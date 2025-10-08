@@ -3,6 +3,14 @@
 Helm chart for deploying **Vikunja** (open-source task and project management app) on Kubernetes.  
 This repo demonstrates a **case study** on deploying Vikunja with **GKE (Google Kubernetes Engine)**, **Helm**, and **Postgres**.
 
+
+## Live Application
+
+Vikunja is deployed on a GKE regional cluster using Helm.  
+Access the live app here:  
+
+👉 http://34.59.253.239:3456
+
 ---
 
 ## 1) Executive Summary
